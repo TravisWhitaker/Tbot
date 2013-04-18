@@ -12,6 +12,15 @@
 
 void hintsInit(struct addrinfo *hints)
 {
+	switch(hints)
+	{
+	case NULL:
+		printf("SOMETHING REALLY BAD HAPPENED!\nFunction hintsInit() was passed a NULL pointer!\n");
+		return; //If goto fails.
+		break; //If return fails.
+	default:
+		break;
+	}
 	memset(hints,0,sizeof(struct addrinfo));
 	hints->ai_family = AF_UNSPEC;
 	hints->ai_socktype = SOCK_STREAM;
