@@ -49,17 +49,24 @@ int main(int argc, char *argv[])
 
 	hintsInit(&hints); //Set socket options, see sockutils.c
 
-	if((addrstatus = getaddrinfo(NULL,"9999",&hints,&addrInfo)) != 0)
+	//Ask the OS for DNS resolve and port availability:
+	if(getaddrinfo(address,port,&hints,&addrInfo) != 0)
 	{
-		printf("She's out of sync...\n");
+		printf("Couldn't resolve domain name.\n");
 		return 0;
 	}
 
+	//Create the socket. We're going to assume that the first entry in the linked
+	//list 'addrinfo' is going to work, socket() will probably fail otherwise:
 	tube = socket(addrInfo->ai_family, addrInfo->ai_socktype, addrInfo->ai_protocol);
-	if(tube == -1)
+	switch(tube)
 	{
-		printf("The Internet is not a truck, but rather a series of tubes...\n");
+	case -1:
+		printf("Couldn't initialize socket.\n");
 		return 0;
+		break;
+	default:
+		break;
 	}
 
 	bindStatus = bind(tube, addrInfo->ai_addr, addrInfo->ai_addrlen);
