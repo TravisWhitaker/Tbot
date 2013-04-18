@@ -8,13 +8,13 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-int addrstatus;
-struct addrinfo hints;
-struct addrinfo *addrInfo;
-int tube;
-int bindStatus;
-socklen_t addr_size;
+int addrstatus; //Store the return value of getaddrinfo().
+struct addrinfo hints; //Struct to store the config to pass to getaddrinfo().
+struct addrinfo *addrInfo; //Struct to store the output of getaddrinfo().
+int tube; //Store the socket descriptor.
+int bindStatus; //Store the return value of bind().
 
+char address[1000];
 char port[5] = "6667\0";
 
 int main(int argc, char *argv[])
@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 		return 0;
 		break;
 	}
+
 	memset(&hints,0,sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
