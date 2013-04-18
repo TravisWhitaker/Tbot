@@ -16,12 +16,12 @@ struct addrinfo *addrInfo; //Struct to store the output of getaddrinfo().
 int tube; //Store the socket descriptor.
 int bindStatus; //Store the return value of bind().
 
-char address[1000];
-char port[5] = "6667\0";
+char address[1024]; //Store the address the user enters as a command line argument.
+char port[5] = "6667\0"; //Hard code the IRCd port for now...
 
 int main(int argc, char *argv[])
 {
-	switch(argc)
+	switch(argc) //Scold the user if there isn't exactly one argument.
 	{
 	case 2:
 		break;
@@ -36,7 +36,18 @@ int main(int argc, char *argv[])
 		break;
 	}
 
-	hintsInit(&hints);
+	memset(address,'\0',1024); //Make sure this memory is clear.
+	strncpy(address,argv[1],1024); //Copy the first 1024 bytes of input.
+	switch(address[1023]) //Make sure that the string is null-terminated.
+	{
+	case '\0':
+		break;
+	default:
+		address[1023] = '\0';
+		break;
+	}
+
+	hintsInit(&hints); //Set socket options, see sockutils.c
 
 	if((addrstatus = getaddrinfo(NULL,"9999",&hints,&addrInfo)) != 0)
 	{
