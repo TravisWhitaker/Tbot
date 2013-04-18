@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
 	case 1:
 	case 0:
 		printf("Too few arguments...\n");
-		return 0;
+		goto terminate;
 		break;
 	default:
 		printf("Too many arguments...\n");
-		return 0;
+		goto terminate;
 		break;
 	}
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 	if(getaddrinfo(address,port,&hints,&addrInfo) != 0)
 	{
 		printf("Couldn't resolve domain name.\n");
-		return 0;
+		goto terminate;
 	}
 
 	//Create the socket. We're going to assume that the first entry in the linked
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 	{
 	case -1:
 		printf("Couldn't initialize socket.\n");
-		return 0;
+		goto terminate;
 		break;
 	default:
 		break;
@@ -73,7 +73,11 @@ int main(int argc, char *argv[])
 	if(bindStatus == -1)
 	{
 		printf("Failed to bind tube.\n");
-		return 0;
+		goto terminate;
 	}
-	return 0;
+
+	//Goto here to terminate. This way we control how memory is freed.
+	terminate:
+		freeaddrinfo(addrInfo);
+		return 0;
 }
