@@ -8,6 +8,8 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
+#include <sockutil.h>
+
 int addrstatus; //Store the return value of getaddrinfo().
 struct addrinfo hints; //Struct to store the config to pass to getaddrinfo().
 struct addrinfo *addrInfo; //Struct to store the output of getaddrinfo().
@@ -34,10 +36,7 @@ int main(int argc, char *argv[])
 		break;
 	}
 
-	memset(&hints,0,sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
+	hintsInit(&hints);
 
 	if((addrstatus = getaddrinfo(NULL,"9999",&hints,&addrInfo)) != 0)
 	{
