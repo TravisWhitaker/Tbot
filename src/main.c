@@ -13,20 +13,20 @@ struct addrinfo hints;
 struct addrinfo *addrInfo;
 int tube;
 int bindStatus;
-struct sockaddr_storage bimboAddr;
 socklen_t addr_size;
 
 char port[5] = "6667\0";
 
 int main(int argc, char *argv[])
 {
-
 	switch(argc)
 	{
 		case 2:
 			break;
 		default:
 			printf("Not necessarily beautiful, but mutated...\n");
+			return 0;
+			break;
 	}
 	memset(&hints,0,sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
