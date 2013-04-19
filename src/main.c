@@ -113,13 +113,12 @@ int main(int argc, char *argv[])
 	initIRC(tube);
 	printf("Registered.\n");
 
-	send(tube,"JOIN :#notsummer\n",17,0);
-	printf("Joined.\n\n");
+	send(tube,"JOIN :#bimbo\n",13,0);
+	sleep(10);
 
 	while(1)
 	{
-		send(tube,"PRIVMSG #notsummer :Ya bimbooo.\n",32,0);
-		printf("~\n");
+		send(tube,"PRIVMSG #bimbo :Ya bimbooo.\n",28,0);
 		sleep(10);
 	}
 

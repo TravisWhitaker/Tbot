@@ -29,7 +29,6 @@ void initIRC(int tube)
 	memset(buffer,'\0',1000000);
 	usleep(10000);
 	recv(tube,buffer,1000000,0);
-	printf("!!! SERVER !!!\n%s\n!!! !SERVER! !!!\n",buffer);
 	free(buffer);
 	return;
 }
