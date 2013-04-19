@@ -21,7 +21,7 @@ char IPstr[INET6_ADDRSTRLEN]; //Store the host's IP as a string.
 
 int main(int argc, char *argv[])
 {
-	switch(argc) //Scold the user if there isn't exactly one argument.
+	switch(argc) //Scold the user if arguments are malformed.
 	{
 	case 3:
 		break;
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 		address[1023] = '\0';
 		break;
 	}
-	switch(port[0])
+	switch(port[0]) //Do the same thing for 'port.'
 	{
 	case '6':
 		break;
@@ -107,7 +107,6 @@ int main(int argc, char *argv[])
 		printf("Couldn't connect to host.\n");
 		goto terminate;
 	}
-	goto terminate;
 
 	//Goto here to terminate. This way we control how memory is freed.
 	terminate:
