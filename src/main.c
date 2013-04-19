@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 		IPppt = &(ipv6->sin6_addr);
 	}
 	inet_ntop(addrInfo->ai_family, IPppt, IPstr, sizeof(IPstr));
-	printf("%s resolved to %s\n",address,IPstr);
+	printf("%s resolved to %s, connecting on port %s...\n",address,IPstr,port);
 
 	//Create the socket. We're going to assume that the first entry in the linked
 	//list 'addrinfo' is going to work, socket() will probably fail otherwise:
