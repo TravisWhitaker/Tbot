@@ -17,6 +17,7 @@ int tube; //Store the socket descriptor.
 
 char address[1024]; //Store the address the user enters as a command line argument.
 char port[5] = "6667\0"; //Hard code the IRCd port for now...
+char IPstr[INET6_ADDRSTRLEN]; //Store the host's IP as a string.
 
 int main(int argc, char *argv[])
 {
@@ -55,6 +56,21 @@ int main(int argc, char *argv[])
 		goto terminate;
 	}
 
+	//Now we're going to tell the user about the DNS resolution:
+	void *IPppt;
+	if(addrInfo->ai_family == AF_INET)
+	{
+		struct sockaddr_in *ipv4 = (struct sockaddr_in *)addrInfo->ai_addr;
+		IPppt = &(ipv4->sin_addr);
+	}
+	else
+	{
+		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)addrInfo->ai_addr;
+		IPppt = &(ipv6->sin6_addr);
+	}
+	inet_ntop(addrInfo->ai_family, IPppt, IPstr, sizeof(IPstr));
+	printf("%s resolved to %s\n",address,IPstr);
+
 	//Create the socket. We're going to assume that the first entry in the linked
 	//list 'addrinfo' is going to work, socket() will probably fail otherwise:
 	tube = socket(addrInfo->ai_family, addrInfo->ai_socktype, addrInfo->ai_protocol);
@@ -73,9 +89,12 @@ int main(int argc, char *argv[])
 		printf("Couldn't connect to host.\n");
 		goto terminate;
 	}
+	goto terminate;
 
 	//Goto here to terminate. This way we control how memory is freed.
 	terminate:
 		freeaddrinfo(addrInfo);
+		close(tube);
+		printf("Socket closed.\n");
 		return 0;
 }
