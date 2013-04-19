@@ -16,14 +16,17 @@ struct addrinfo *addrInfo; //Struct to store the output of getaddrinfo().
 int tube; //Store the socket descriptor.
 
 char address[1024]; //Store the address the user enters as a command line argument.
-char port[5] = "6667\0"; //Hard code the IRCd port for now...
+char port[6]; //Store the port to use.
 char IPstr[INET6_ADDRSTRLEN]; //Store the host's IP as a string.
 
 int main(int argc, char *argv[])
 {
 	switch(argc) //Scold the user if there isn't exactly one argument.
 	{
+	case 3:
+		break;
 	case 2:
+		strncpy(port,"6667\0",6);
 		break;
 	case 1:
 	case 0:
@@ -45,6 +48,21 @@ int main(int argc, char *argv[])
 	default:
 		address[1023] = '\0';
 		break;
+	}
+	switch(port[0])
+	{
+	case '6':
+		break;
+	default:
+		memset(port,'\0',6);
+		strncpy(port,argv[2],6);
+		switch(port[6])
+		{
+		case '\0':
+			break;
+		default:
+			port[6] = '\0';
+		}
 	}
 
 	hintsInit(&hints); //Set socket options, see sockutils.c
