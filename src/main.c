@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 
 #include <sockutil.h>
+#include <irc.h>
 
 int addrstatus; //Store the return value of getaddrinfo().
 struct addrinfo hints; //Struct to store the config to pass to getaddrinfo().
@@ -107,6 +108,22 @@ int main(int argc, char *argv[])
 		printf("Couldn't connect to host.\n");
 		goto terminate;
 	}
+
+	//From here on out, we just pass the socket discriptor around:
+	initIRC(tube);
+	printf("Registered.\n");
+
+	send(tube,"JOIN :#notsummer\n",17,0);
+	printf("Joined.\n\n");
+
+	while(1)
+	{
+		printf("~");
+		send(tube,"PRIVMSG #notsummer :Ya bimbooo.\n",32,0);
+		printf("|");
+	}
+
+	goto terminate;
 
 	//Goto here to terminate. This way we control how memory is freed.
 	terminate:
