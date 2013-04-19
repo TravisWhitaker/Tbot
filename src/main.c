@@ -116,12 +116,7 @@ int main(int argc, char *argv[])
 	send(tube,"JOIN :#notsummer\n",17,0);
 	printf("Joined.\n\n");
 
-	while(1)
-	{
-		printf("~");
-		send(tube,"PRIVMSG #notsummer :Ya bimbooo.\n",32,0);
-		printf("|");
-	}
+	send(tube,"PRIVMSG #notsummer :Ya bimbooo.\n",32,0);
 
 	goto terminate;
 
