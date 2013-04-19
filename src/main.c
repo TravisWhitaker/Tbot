@@ -14,7 +14,6 @@ int addrstatus; //Store the return value of getaddrinfo().
 struct addrinfo hints; //Struct to store the config to pass to getaddrinfo().
 struct addrinfo *addrInfo; //Struct to store the output of getaddrinfo().
 int tube; //Store the socket descriptor.
-int bindStatus; //Store the return value of bind().
 
 char address[1024]; //Store the address the user enters as a command line argument.
 char port[5] = "6667\0"; //Hard code the IRCd port for now...
@@ -69,10 +68,9 @@ int main(int argc, char *argv[])
 		break;
 	}
 
-	bindStatus = bind(tube, addrInfo->ai_addr, addrInfo->ai_addrlen);
-	if(bindStatus == -1)
+	if(connect(tube, addrInfo->ai_addr, addrInfo->ai_addrlen) == -1)
 	{
-		printf("Failed to bind tube.\n");
+		printf("Couldn't connect to host.\n");
 		goto terminate;
 	}
 
