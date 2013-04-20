@@ -22,6 +22,9 @@ char IPstr[INET6_ADDRSTRLEN]; //Store the host's IP as a string.
 
 int main(int argc, char *argv[])
 {
+	//Allocate some memory for later:
+	char *line = malloc(sizeof(char)*1025);
+
 	switch(argc) //Scold the user if arguments are malformed.
 	{
 	case 3:
@@ -111,15 +114,15 @@ int main(int argc, char *argv[])
 
 	//From here on out, we just pass the socket discriptor around:
 	initIRC(tube);
-	printf("Registered.\n");
 
 	send(tube,"JOIN :#bimbo\n",13,0);
-	sleep(10);
 
 	while(1)
 	{
-		send(tube,"PRIVMSG #bimbo :Ya bimbooo.\n",28,0);
-		sleep(10);
+		getLine(tube,line);
+		printf("%s",line);
+		printf("%d\n",pingpong(tube,line));
+		usleep(1000000);
 	}
 
 	goto terminate;
@@ -127,6 +130,7 @@ int main(int argc, char *argv[])
 	//Goto here to terminate. This way we control how memory is freed.
 	terminate:
 		freeaddrinfo(addrInfo);
+		free(line);
 		close(tube);
 		printf("Socket closed.\n");
 		return 0;

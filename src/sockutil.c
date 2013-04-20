@@ -10,6 +10,7 @@
 
 #include <sockutil.h>
 
+//Load the hints struct:
 void hintsInit(struct addrinfo *hints)
 {
 	memset(hints,0,sizeof(struct addrinfo));
