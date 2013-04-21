@@ -11,12 +11,13 @@
 #include <sockutil.h>
 #include <constructor.h>
 
-char nick[] = "tbot\0";
-char user[] = "tbot\0";
+char defaultNick[] = "tbot\0";
 char realname[] = "The T Robot\0";
 
 void initIRC(int tube)
 {
+	char *nick = malloc(sizeof(char)*15);
+	char *num = malloc(sizeof(char)*6);
 	char *buffer = malloc(sizeof(char));
 	*buffer = '\0';
 	do
@@ -25,13 +26,36 @@ void initIRC(int tube)
 	} while(*buffer != 'F');
 	buffer = realloc(buffer,1024);
 	recv(tube,buffer,1024,0);
-	send(tube,nickConstruct(nick),msgLen(nickConstruct(nick)),0);
-	send(tube,userConstruct(user,realname),msgLen(userConstruct(user,realname)),0);
+	strncpy(nick,defaultNick,5);
+	for(int i=0;i<1024;i++)
+	{
+		memset(buffer,'\0',1024);
+		switch(i)
+		{
+		case 0:
+			break;
+		default:
+			memset(num,'\0',6);
+			sprintf(num,"%d",i);
+			strncpy(nick+4,num,6);
+			break;
+		}
+		printf("Trying nick %s...\n",nick);
+		send(tube,nickConstruct(nick),msgLen(nickConstruct(nick)),0);
+		usleep(100000);
+		if(recv(tube,buffer,1024,MSG_DONTWAIT) == -1)
+		{
+			break;
+		}
+	}
+	send(tube,userConstruct(nick,realname),msgLen(userConstruct(nick,realname)),0);
 	buffer = realloc(buffer,1000000);
 	memset(buffer,'\0',1000000);
 	usleep(500000);
 	recv(tube,buffer,1000000,0);
 	free(buffer);
+	free(nick);
+	free(num);
 	return;
 }
 
