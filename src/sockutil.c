@@ -19,3 +19,17 @@ void hintsInit(struct addrinfo *hints)
 	hints->ai_flags = AI_PASSIVE;
 	return;
 }
+
+//Find the length of a pending IRC line for send():
+int msgLen(char *msg)
+{
+	register unsigned int i;
+	for(i=0;i<1024;i++)
+	{
+		if(*(msg+i) == '\n')
+		{
+			break;
+		}
+	}
+	return i;
+}

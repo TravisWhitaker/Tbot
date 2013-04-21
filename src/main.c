@@ -115,14 +115,13 @@ int main(int argc, char *argv[])
 	//From here on out, we just pass the socket discriptor around:
 	initIRC(tube);
 
-	send(tube,"JOIN :#bimbo\n",13,0);
+	send(tube,"JOIN :#notsummer\n",18,0);
 
 	while(1)
 	{
 		getLine(tube,line);
-		printf("%s",line);
-		printf("%d\n",pingpong(tube,line));
-		usleep(1000000);
+		pingpong(tube,line);
+		usleep(1000);
 	}
 
 	goto terminate;

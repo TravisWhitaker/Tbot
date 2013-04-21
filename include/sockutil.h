@@ -12,5 +12,6 @@
 #include <netinet/in.h>
 
 void hintsInit(struct addrinfo *hints);
+int msgLen(char *msg);
 
 #endif
