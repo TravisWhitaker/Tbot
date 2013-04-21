@@ -14,7 +14,7 @@
 int addrstatus; //Store the return value of getaddrinfo().
 struct addrinfo hints; //Struct to store the config to pass to getaddrinfo().
 struct addrinfo *addrInfo; //Struct to store the output of getaddrinfo().
-int tube; //Store the socket descriptor.
+int *tube; //Store the socket descriptor.
 
 char address[1024]; //Store the address the user enters as a command line argument.
 char port[6]; //Store the port to use.
@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 {
 	//Allocate some memory for later:
 	char *line = malloc(sizeof(char)*1025);
+	tube = malloc(sizeof(int));
 
 	switch(argc) //Scold the user if arguments are malformed.
 	{
@@ -95,8 +96,8 @@ int main(int argc, char *argv[])
 
 	//Create the socket. We're going to assume that the first entry in the linked
 	//list 'addrinfo' is going to work, socket() will probably fail otherwise:
-	tube = socket(addrInfo->ai_family, addrInfo->ai_socktype, addrInfo->ai_protocol);
-	switch(tube)
+	*tube = socket(addrInfo->ai_family, addrInfo->ai_socktype, addrInfo->ai_protocol);
+	switch(*tube)
 	{
 	case -1:
 		printf("Couldn't initialize socket.\n");
@@ -106,23 +107,32 @@ int main(int argc, char *argv[])
 		break;
 	}
 
-	if(connect(tube, addrInfo->ai_addr, addrInfo->ai_addrlen) == -1)
+	if(connect(*tube, addrInfo->ai_addr, addrInfo->ai_addrlen) == -1)
 	{
 		printf("Couldn't connect to host.\n");
 		goto terminate;
 	}
 
 	//From here on out, we just pass the socket discriptor around:
-	initIRC(tube);
+	initIRC(*tube);
 
 	char tempjoin[] = "JOIN :#notsummer\n";
-	send(tube,tempjoin,msgLen(tempjoin),0);
+	send(*tube,tempjoin,msgLen(tempjoin),0);
 
 	while(1)
 	{
-		getLine(tube,line);
-		pingpong(tube,line);
 		usleep(1000);
+		getLine(*tube,line);
+		if(pingpong(*tube,line) == 1)
+		{
+			continue;
+		}
+		if(tryReconnect(tube,line,addrInfo,10) == 1)
+		{
+			initIRC(*tube);
+			send(*tube,tempjoin,msgLen(tempjoin),0);
+			continue;
+		}
 	}
 
 	goto terminate;
@@ -131,7 +141,8 @@ int main(int argc, char *argv[])
 	terminate:
 		freeaddrinfo(addrInfo);
 		free(line);
-		close(tube);
+		close(*tube);
+		free(tube);
 		printf("Socket closed.\n");
 		return 0;
 }

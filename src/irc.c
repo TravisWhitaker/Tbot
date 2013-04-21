@@ -71,18 +71,22 @@ int pingpong(int tube,char *line)
 					break; //u mad?
 				default:
 					return 0;
+					break;
 				}
 				break;
 			default:
 				return 0;
+				break;
 			}
 			break;
 		default:
 			return 0;
+			break;
 		}
 		break;
 	default:
 		return 0;
+		break;
 	}
 	char *buffer = malloc(sizeof(char)*1024);
 	memset(buffer,'\0',1024);
@@ -99,4 +103,80 @@ int pingpong(int tube,char *line)
 	send(tube,buffer,i+1,0);
 	free(buffer);
 	return 1;
+}
+
+//Try to reconnect to the server upon disconnect, disregarding the reason,
+//returns just like pingpong and can change the value of 'tube':
+int tryReconnect(int *tube,char *line,struct addrinfo *addrInfo, unsigned int delay)
+{
+	switch(*(line))
+	{
+	case 'E':
+		switch(*(line+1))
+		{
+		case 'R':
+			switch(*(line+2))
+			{
+			case 'R':
+				switch(*(line+3))
+				{
+				case 'O':
+					switch(*(line+4))
+					{
+					case 'R':
+						break; //u mad?
+					default:
+						return 0;
+						break;
+					}
+					break;
+				default:
+					return 0;
+					break;
+				}
+				break;
+			default:
+				return 0;
+				break;
+			}
+			break;
+		default:
+			return 0;
+			break;
+		}
+		break;
+	default:
+		return 0;
+		break;
+	}
+	close(*tube);
+	printf("Disconnected from the server, reconnecting in...\n");
+	int i;
+	for(i=delay;i>0;i--)
+	{
+		printf("%d...\n",i);
+		usleep(1000000);
+	}
+	*tube = socket(addrInfo->ai_family,addrInfo->ai_socktype,addrInfo->ai_protocol);
+	switch(*tube)
+	{
+	case -1:
+		printf("Couldn't initialize socket.\n");
+		usleep(1000000);
+		return tryReconnect(tube,"ERROR",addrInfo,delay+5);
+		break;
+	default:
+		break;
+	}
+	if(connect(*tube,addrInfo->ai_addr,addrInfo->ai_addrlen) == -1)
+	{
+		printf("Couldn't reconnect.\n");
+		usleep(1000000);
+		return tryReconnect(tube,"ERROR",addrInfo,delay+5);
+	}
+	else
+	{
+		printf("Success.\n");
+		return 1;
+	}
 }
