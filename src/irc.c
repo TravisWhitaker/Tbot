@@ -9,9 +9,11 @@
 #include <netinet/in.h>
 
 #include <sockutil.h>
+#include <constructor.h>
 
-char nick[] = "NICK tbot\n";
-char user[] = "USER tbot 0 * :tbot\n";
+char nick[] = "tbot\0";
+char user[] = "tbot\0";
+char realname[] = "The T Robot\0";
 
 void initIRC(int tube)
 {
@@ -23,8 +25,8 @@ void initIRC(int tube)
 	} while(*buffer != 'F');
 	buffer = realloc(buffer,1024);
 	recv(tube,buffer,1024,0);
-	send(tube,nick,msgLen(nick),0);
-	send(tube,user,msgLen(user),0);
+	send(tube,nickConstruct(nick),msgLen(nickConstruct(nick)),0);
+	send(tube,userConstruct(user,realname),msgLen(userConstruct(user,realname)),0);
 	buffer = realloc(buffer,1000000);
 	memset(buffer,'\0',1000000);
 	usleep(500000);

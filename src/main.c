@@ -10,6 +10,7 @@
 
 #include <sockutil.h>
 #include <irc.h>
+#include <constructor.h>
 
 int addrstatus; //Store the return value of getaddrinfo().
 struct addrinfo hints; //Struct to store the config to pass to getaddrinfo().
