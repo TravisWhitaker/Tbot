@@ -115,7 +115,8 @@ int main(int argc, char *argv[])
 	//From here on out, we just pass the socket discriptor around:
 	initIRC(tube);
 
-	send(tube,"JOIN :#notsummer\n",18,0);
+	char tempjoin[] = "JOIN :#notsummer\n";
+	send(tube,tempjoin,msgLen(tempjoin),0);
 
 	while(1)
 	{

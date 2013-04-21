@@ -31,5 +31,5 @@ int msgLen(char *msg)
 			break;
 		}
 	}
-	return i;
+	return i+1;
 }
