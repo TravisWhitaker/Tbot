@@ -117,12 +117,24 @@ int main(int argc, char *argv[])
 	//From here on out, we just pass the socket discriptor around:
 	initIRC(*tube);
 
-	char tempjoin[] = "JOIN :#notsummer\n";
-	send(*tube,tempjoin,msgLen(tempjoin),0);
+	if(join(*tube,NULL) == 0)
+	{
+		printf("Failed to join channel.\n");
+		goto terminate;
+	}
 
+	char sup[] = "PRIVMSG #notsummer :'Sup bitches.\n";
+	char imback[] = "PRIVMSG #notsummer :I'm back, bitches!\n";
+	int counter = 0;
 	while(1)
 	{
+		if(counter >= 60000)
+		{
+			send(*tube,sup,msgLen(sup),0);
+			counter = 0;
+		}
 		usleep(1000);
+		counter++;
 		getLine(*tube,line);
 		if(pingpong(*tube,line) == 1)
 		{
@@ -131,9 +143,14 @@ int main(int argc, char *argv[])
 		if(tryReconnect(tube,line,addrInfo,10) == 1)
 		{
 			initIRC(*tube);
-			send(*tube,tempjoin,msgLen(tempjoin),0);
+			join(*tube,NULL);
 			continue;
 		}
+//		if(kickDetect(*tube,line,NULL,10) == 1)
+//		{
+//			send(*tube,imback,msgLen(imback),0);
+//			continue;
+//		}
 	}
 
 	goto terminate;

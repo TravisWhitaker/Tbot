@@ -10,6 +10,7 @@
 
 #include <sockutil.h>
 #include <constructor.h>
+#include <irc.h>
 
 char defaultNick[] = "tbot\0";
 char realname[] = "The T Robot\0";
@@ -45,6 +46,7 @@ void initIRC(int tube)
 		usleep(100000);
 		if(recv(tube,buffer,1024,MSG_DONTWAIT) == -1)
 		{
+			printf("Registered successfully.\n");
 			break;
 		}
 	}
@@ -58,6 +60,59 @@ void initIRC(int tube)
 	free(num);
 	return;
 }
+
+//Join a channel and detect success or failure:
+int join(int tube, char *channel)
+{
+	char tempjoin[] = "JOIN :#notsummer";
+	char *nick = malloc(sizeof(char)*15);
+	char *num = malloc(sizeof(char)*6);
+	char *buffer = malloc(sizeof(char)*1025);
+	strncpy(nick,defaultNick,5);
+	for(int i=0;i<1024;i++)
+	{
+		memset(buffer,'\0',1024);
+		switch(i)
+		{
+		case 0:
+			break;
+		default:
+			memset(num,'\0',6);
+			sprintf(num,"%d",i);
+			strncpy(nick+4,num,6);
+			break;
+		}
+		printf("Trying nick %s...\n",nick);
+		send(tube,nickConstruct(nick),msgLen(nickConstruct(nick)),0);
+		usleep(1000);
+		send(tube,tempjoin,msgLen(tempjoin),0);
+		memset(buffer,'\0',1025);
+		usleep(1000000);
+		getLine(tube,buffer);
+		printf("Checking for channel join success...\n");
+		printf("%s",buffer);
+		for(int j=0;j<1024;j++)
+		{
+			if(*(buffer+j) == 'J')
+			{
+				if(*(buffer+j+1) == 'O' && *(buffer+j+2) == 'I' && *(buffer+j+3) == 'N' && *(buffer+j+4) == ' ' && *(buffer+j+5) == ':')
+				{
+					free(nick);
+					free(num);
+					free(buffer);
+					return 1;
+				}
+			}
+			if(*(buffer+j) == '\n')
+			{
+				break;
+			}
+		}
+		printf("Trying next number...\n");
+	}
+	return 0;
+}
+
 
 //Grab exactly one \n terminated line of output from the server
 //that is safe for printing:
@@ -205,4 +260,103 @@ int tryReconnect(int *tube,char *line,struct addrinfo *addrInfo, unsigned int de
 		printf("Success.\n");
 		return 1;
 	}
+}
+
+//Try to re-join the channel if a kick is detected:
+int kickDetect(int tube, char *line, char *channel, int delay)
+{
+	char *nick = malloc(sizeof(char)*15);
+	char *num = malloc(sizeof(char)*6);
+	char *buffer = malloc(sizeof(char)*1025);
+	char tempjoin[] = "JOIN :#notsummer";
+	for(int i=0;i<1025;i++)
+	{
+		if(*(line+i) == 'K')
+		{
+			printf("Detected K\n");
+			if(*(line+i+1) == 'I' && *(line+i+2) == 'C' && *(line+i+3) == 'K') //u mad?
+			{
+				printf("Detected ICK\n");
+				break;
+			}
+		}
+		if(*(line+i) == '\n' || i==1024)
+		{
+			free(nick);
+			free(num);
+			free(buffer);
+			return 0;
+		}
+	}
+	for(int i=0;i<1025;i++)
+	{
+		printf("Detected T\n");
+		if(*(line+i) == 't')
+		{
+			if(*(line+i+1) == 'b' && *(line+i+2) == 'o' && *(line+i+3) == 't') //u mad?
+			{
+				printf("Detected bot\n");
+				break;
+			}
+		}
+		else if(*(line+i) == '\n')
+		{
+			free(nick);
+			free(num);
+			free(buffer);
+			return 0;
+		}
+	}
+	strncpy(nick,defaultNick,5);
+	printf("Kicked from channel, re-joining in...\n");
+	int i;
+	for(i=delay;i>0;i--)
+	{
+		printf("%d...\n",i);
+		usleep(1000000);
+	}
+	for(int i=0;i<1024;i++)
+	{
+		memset(buffer,'\0',1025);
+		switch(i)
+		{
+		case 0:
+			break;
+		default:
+			memset(num,'\0',6);
+			sprintf(num,"%d",i);
+			strncpy(nick+4,num,6);
+			break;
+		}
+		printf("Trying nick %s...\n",nick);
+		send(tube,nickConstruct(nick),msgLen(nickConstruct(nick)),0);
+		usleep(1000);
+		send(tube,tempjoin,msgLen(tempjoin),0);
+		memset(buffer,'\0',1025);
+		usleep(1000000);
+		getLine(tube,buffer);
+		for(int j=0;i<1025;i++)
+		{
+			if(*(buffer+j) == 'J')
+			{
+				if(*(buffer+j+1) == 'O' && *(buffer+j+2) == 'I' && *(buffer+j+3) == 'N' && *(buffer+j+4) == ' ' && *(buffer+j+5) == ':')
+				{
+					printf("Success.\n");
+					free(nick);
+					free(num);
+					free(buffer);
+					return 1;
+				}
+			}
+			if(*(buffer+j) == '\n')
+			{
+				break;
+			}
+		}
+	}
+	printf("Failure.\n");
+	free(nick);
+	free(num);
+	free(buffer);
+	return kickDetect(tube,line,channel,delay+60);
 }
