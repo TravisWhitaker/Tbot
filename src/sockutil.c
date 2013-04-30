@@ -33,3 +33,22 @@ int msgLen(char *msg)
 	}
 	return i+1;
 }
+
+void printResolve(struct addrinfo *addrInfo, char *address, char *port)
+{
+	char IPstr[INET6_ADDRSTRLEN];
+	void *IPppt;
+
+	if(addrInfo->ai_family == AF_INET)
+	{
+		struct sockaddr_in *ipv4 = (struct sockaddr_in *)addrInfo->ai_addr;
+		IPppt = &(ipv4->sin_addr);
+	}
+	else
+	{
+		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)addrInfo->ai_addr;
+		IPppt = &(ipv6->sin6_addr);
+	}
+	inet_ntop(addrInfo->ai_family, IPppt, IPstr, sizeof(IPstr));
+	printf("%s resolved to %s, connecting on port %s...\n",address,IPstr,port);
+}

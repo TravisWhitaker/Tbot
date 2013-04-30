@@ -13,5 +13,6 @@
 
 void hintsInit(struct addrinfo *hints);
 int msgLen(char *msg);
+void printResolve(struct addrinfo *addrInfo, char *address, char *port);
 
 #endif
