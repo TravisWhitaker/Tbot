@@ -128,6 +128,8 @@ int main(int argc, char *argv[])
 	//Goto here to terminate. This way we control how memory is freed.
 	terminate:
 		freeaddrinfo(addrInfo);
+		free(address);
+		free(port);
 		free(line);
 		close(*tube);
 		free(tube);
